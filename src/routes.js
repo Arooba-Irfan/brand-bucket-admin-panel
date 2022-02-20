@@ -1,6 +1,8 @@
 import React from 'react'
 const Products = React.lazy(() => import('./views/pages/Products/Products'))
 const AddProduct = React.lazy(() => import('./views/pages/Products/AddProduct'))
+const AddCategory = React.lazy(() => import('./views/pages/Categories/AddCategory'))
+const AddBrand = React.lazy(() => import('./views/pages/Brands/AddBrand'))
 const Brands = React.lazy(() => import('./views/pages/Brands/Brands'))
 const Categories = React.lazy(() => import('./views/pages/Categories/Categories'))
 const Orders = React.lazy(() => import('./views/pages/Orders/Orders'))
@@ -102,7 +104,9 @@ const routes = [
   { path: '/products', name: 'Products', component: Products },
   { path: '/add-product', name: 'Add Product', component: AddProduct },
   { path: '/brands', name: 'Brands', component: Brands },
+  { path: '/add-brand', name: 'Add Brand', component: AddBrand },
   { path: '/categories', name: 'Categories', component: Categories },
+  { path: '/add-category', name: 'Add Category', component: AddCategory },
   { path: '/orders', name: 'Orders', component: Orders },
 ]
 

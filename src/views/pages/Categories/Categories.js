@@ -45,7 +45,7 @@ const Categories = () => {
           <CButton
             color="dark"
             onClick={() => {
-              history.push('/add-product')
+              history.push('/add-category')
             }}
           >
             Add Category
