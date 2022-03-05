@@ -19,6 +19,8 @@ import {
 import { DocsCallout, DocsExample } from 'src/components'
 import axios from 'axios'
 import { Link, useHistory } from 'react-router-dom'
+import CIcon from '@coreui/icons-react'
+import { cilPencil, cilTrash } from '@coreui/icons'
 
 const Products = () => {
   const [products, setProducts] = useState([])
@@ -28,7 +30,7 @@ const Products = () => {
     // setactionloading(true)
     function fetchProducts() {
       setloading(true)
-      axios.get('http://localhost:8000/api/products').then((response) => {
+      axios.get('https://brand-bucket.herokuapp.com/api/products').then((response) => {
         console.log('response after query', response.data.data.products)
         setProducts(response.data.data.products)
         setloading(false)
@@ -65,10 +67,13 @@ const Products = () => {
                   <CTableHeaderCell scope="col">Category</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Price</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Gender</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Actions</CTableHeaderCell>
                 </CTableRow>
               </CTableHead>
               {loading ? (
-                <CSpinner />
+                <div className="overlay">
+                  <CSpinner />
+                </div>
               ) : (
                 products.map((product, index) => (
                   <CTableBody key={index}>
@@ -80,6 +85,23 @@ const Products = () => {
                       </CTableDataCell>
                       <CTableDataCell>{product.price}</CTableDataCell>
                       <CTableDataCell>{product.gender}</CTableDataCell>
+                      <CTableDataCell>
+                        <CIcon
+                          onClick={() =>
+                            history.push({
+                              pathname: '/add-product',
+                              state: { id: product._id },
+                            })
+                          }
+                          style={{ marginRight: 15, cursor: 'pointer' }}
+                          icon={cilPencil}
+                        />
+                        <CIcon
+                          onClick={() => history.push('/add-product')}
+                          style={{ cursor: 'pointer' }}
+                          icon={cilTrash}
+                        />
+                      </CTableDataCell>
                     </CTableRow>
                   </CTableBody>
                 ))

@@ -19,6 +19,8 @@ import {
 import { DocsCallout, DocsExample } from 'src/components'
 import axios from 'axios'
 import { Link, useHistory } from 'react-router-dom'
+import CIcon from '@coreui/icons-react'
+import { cilPencil, cilTrash } from '@coreui/icons'
 
 const Categories = () => {
   const [categories, setcategories] = useState([])
@@ -29,7 +31,7 @@ const Categories = () => {
     // setactionloading(true)
     function fetchCategories() {
       setloading(true)
-      axios.get('http://localhost:8000/api/categories').then((response) => {
+      axios.get('https://brand-bucket.herokuapp.com/api/categories').then((response) => {
         console.log('response after query', response.data.data.categories)
         setcategories(response.data.data.categories)
         setloading(false)
@@ -63,16 +65,36 @@ const Categories = () => {
                 <CTableRow>
                   <CTableHeaderCell scope="col">No.</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Name</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Actions</CTableHeaderCell>
                 </CTableRow>
               </CTableHead>
               {loading ? (
-                <CSpinner />
+                <div className="overlay">
+                  <CSpinner />
+                </div>
               ) : (
                 categories.map((category, index) => (
                   <CTableBody key={index}>
                     <CTableRow>
                       <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
                       <CTableDataCell>{category.name}</CTableDataCell>
+                      <CTableDataCell>
+                        <CIcon
+                          onClick={() =>
+                            history.push({
+                              pathname: '/add-category',
+                              state: { id: category._id },
+                            })
+                          }
+                          style={{ marginRight: 15, cursor: 'pointer' }}
+                          icon={cilPencil}
+                        />
+                        <CIcon
+                          onClick={() => history.push('/add-category')}
+                          style={{ cursor: 'pointer' }}
+                          icon={cilTrash}
+                        />
+                      </CTableDataCell>
                     </CTableRow>
                   </CTableBody>
                 ))

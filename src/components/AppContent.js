@@ -27,7 +27,7 @@ const AppContent = () => {
               )
             )
           })}
-          <Redirect from="/" to="/products" />
+          <Redirect from="/" to="/login" />
         </Switch>
       </Suspense>
     </CContainer>

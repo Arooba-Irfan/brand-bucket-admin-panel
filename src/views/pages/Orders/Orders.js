@@ -28,7 +28,7 @@ const Orders = () => {
     // setactionloading(true)
     function fetchOrders() {
       setloading(true)
-      axios.get('http://localhost:8000/api/orders').then((response) => {
+      axios.get('https://brand-bucket.herokuapp.com/api/orders').then((response) => {
         console.log('response after query', response.data.data.orders)
         setorders(response.data.data.orders)
         setloading(false)
@@ -39,18 +39,6 @@ const Orders = () => {
   }, [])
   return (
     <CRow>
-      <CCol xs={12}>
-        <CCallout color="info" className="bg-white">
-          <CButton
-            color="dark"
-            onClick={() => {
-              history.push('/add-product')
-            }}
-          >
-            Add Order
-          </CButton>
-        </CCallout>
-      </CCol>
       <CCol xs={12}>
         <CCard className="mb-4">
           <CCardHeader>
@@ -67,7 +55,9 @@ const Orders = () => {
                 </CTableRow>
               </CTableHead>
               {loading ? (
-                <CSpinner />
+                <div className="overlay">
+                  <CSpinner />
+                </div>
               ) : (
                 orders.map((order, index) => (
                   <CTableBody key={index}>

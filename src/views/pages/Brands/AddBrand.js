@@ -11,17 +11,47 @@ import {
   CSpinner,
 } from '@coreui/react'
 import axios from 'axios'
+import PropTypes from 'prop-types'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom/cjs/react-router-dom.min'
+import { useLocation } from 'react-router-dom'
+import { connect } from 'react-redux'
 
-const AddBrand = () => {
+const AddBrand = (props) => {
   const history = useHistory()
+  const location = useLocation()
+  const [singleBrand, setsingleBrand] = useState({})
+
   const [loading, setloading] = useState(false)
   const [catData, setcatData] = useState({
     name: ' ',
     image: ' ',
   })
+  useEffect(() => {
+    if (location?.state?.id) {
+      const { id } = location && location.state
+      if (id) {
+        function fetchBrand() {
+          axios
+            .get('https://brand-bucket.herokuapp.com/api/brands/brand/' + id)
+            .then((response) => {
+              console.log('response after query', response.data.data.brand)
+              setsingleBrand(response.data.data.brand)
+            })
+        }
+        fetchBrand()
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    console.log('singleBrand', singleBrand)
+    setcatData({
+      name: singleBrand.name,
+      image: singleBrand.image,
+    })
+  }, [singleBrand])
 
   const handleSubmit = () => {
     setloading(true)
@@ -38,14 +68,14 @@ const AddBrand = () => {
       .then((data) => {
         axios
           .post(
-            'http://localhost:8000/api/brands',
+            'https://brand-bucket.herokuapp.com/api/brands',
             {
               name: catData.name,
               image: data.url,
             },
             {
               headers: {
-                Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxZGIyMTg5MjhhYzI5ZDE0MjJiMGRjNiIsImlhdCI6MTY0Mjg1MTQ0OSwiZXhwIjoxNjUwNjI3NDQ5fQ.mTwAZwrQ2Ww0uRJxwwbRJ3_681f9DCibOHop7VoXjMM`,
+                Authorization: `Bearer ${props.userToken}`,
               },
             },
           )
@@ -53,7 +83,7 @@ const AddBrand = () => {
             console.log('uploaded =>', res.data)
             setloading(false)
             alert('UPLOADED')
-            history.push('/categories')
+            history.push('/brands')
           })
         console.log('catDataAfter', catData)
       })
@@ -82,6 +112,7 @@ const AddBrand = () => {
                       id="exampleFormControlInput1"
                       placeholder="Enter Brand Name"
                       name="name"
+                      value={catData.name}
                       onChange={(e) => {
                         setcatData({
                           ...catData,
@@ -108,6 +139,11 @@ const AddBrand = () => {
                           })
                         }}
                       />
+                      {singleBrand?.image ? (
+                        <div style={{ width: '270px', height: '50px', overflow: 'scroll' }}>
+                          {singleBrand?.image}
+                        </div>
+                      ) : null}
                     </div>
                   </CCol>
                 </CCol>
@@ -126,5 +162,14 @@ const AddBrand = () => {
     </CRow>
   )
 }
+AddBrand.propTypes = {
+  userToken: PropTypes.string,
+}
 
-export default AddBrand
+const mapStateToProps = (state) => {
+  return {
+    userToken: state.auth.user.data.token,
+  }
+}
+
+export default connect(mapStateToProps, null)(AddBrand)

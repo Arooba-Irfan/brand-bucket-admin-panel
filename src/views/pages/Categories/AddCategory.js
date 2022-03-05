@@ -12,16 +12,46 @@ import {
 } from '@coreui/react'
 import axios from 'axios'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom/cjs/react-router-dom.min'
+import { useLocation } from 'react-router-dom'
+import PropTypes from 'prop-types'
+import { connect } from 'react-redux'
 
-const AddCategory = () => {
+const AddCategory = (props) => {
   const history = useHistory()
   const [loading, setloading] = useState(false)
+  const location = useLocation()
+  const [singleCategory, setsingleCategory] = useState({})
   const [catData, setcatData] = useState({
     name: ' ',
     image: ' ',
   })
+
+  useEffect(() => {
+    if (location?.state?.id) {
+      const { id } = location && location.state
+      if (id) {
+        function fetchCategory() {
+          axios
+            .get('https://brand-bucket.herokuapp.com/api/categories/category/' + id)
+            .then((response) => {
+              console.log('response after query', response.data.data.category)
+              setsingleCategory(response.data.data.category)
+            })
+        }
+        fetchCategory()
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    console.log('singleCategory', singleCategory)
+    setcatData({
+      name: singleCategory.name,
+      image: singleCategory.image,
+    })
+  }, [singleCategory])
 
   const handleSubmit = () => {
     setloading(true)
@@ -38,14 +68,14 @@ const AddCategory = () => {
       .then((data) => {
         axios
           .post(
-            'http://localhost:8000/api/categories',
+            'https://brand-bucket.herokuapp.com/api/categories',
             {
               name: catData.name,
               image: data.url,
             },
             {
               headers: {
-                Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxZGIyMTg5MjhhYzI5ZDE0MjJiMGRjNiIsImlhdCI6MTY0Mjg1MTQ0OSwiZXhwIjoxNjUwNjI3NDQ5fQ.mTwAZwrQ2Ww0uRJxwwbRJ3_681f9DCibOHop7VoXjMM`,
+                Authorization: `Bearer ${props.userToken}`,
               },
             },
           )
@@ -53,7 +83,7 @@ const AddCategory = () => {
             console.log('uploaded =>', res.data)
             setloading(false)
             alert('UPLOADED')
-            history.push('/brands')
+            history.push('/categories')
           })
         console.log('catDataAfter', catData)
       })
@@ -82,6 +112,7 @@ const AddCategory = () => {
                       id="exampleFormControlInput1"
                       placeholder="Enter Category Name"
                       name="name"
+                      value={catData.name}
                       onChange={(e) => {
                         setcatData({
                           ...catData,
@@ -108,6 +139,11 @@ const AddCategory = () => {
                           })
                         }}
                       />
+                      {singleCategory?.image ? (
+                        <div style={{ width: '270px', height: '50px', overflow: 'scroll' }}>
+                          {singleCategory?.image}
+                        </div>
+                      ) : null}
                     </div>
                   </CCol>
                 </CCol>
@@ -127,4 +163,14 @@ const AddCategory = () => {
   )
 }
 
-export default AddCategory
+AddCategory.propTypes = {
+  userToken: PropTypes.string,
+}
+
+const mapStateToProps = (state) => {
+  return {
+    userToken: state.auth.user.data.token,
+  }
+}
+
+export default connect(mapStateToProps, null)(AddCategory)
